@@ -2,6 +2,8 @@
 
 Un tableau de tâches (kanban) simple et soigné : **À faire**, **En cours**, **Fait**.
 
+<img width="906" height="590" alt="image" src="https://github.com/user-attachments/assets/d81ca637-55b6-4373-bed1-bae4ecce670f" />
+
 Application 100 % front-end : HTML, CSS et JavaScript natif, sans dépendance ni étape de build. Les données restent dans votre navigateur.
 
 ## Fonctionnalités
