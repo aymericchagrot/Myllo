@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Myllo</title>
+  <meta name="description" content="Un tableau de tâches simple : à faire, en cours, fait.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Crect x='7' y='8' width='4.5' height='16' rx='2.2' fill='white'/%3E%3Crect x='13.75' y='8' width='4.5' height='11' rx='2.2' fill='white' fill-opacity='.85'/%3E%3Crect x='20.5' y='8' width='4.5' height='7' rx='2.2' fill='white' fill-opacity='.7'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <span class="blob b4"></span>
+    <div class="grid-overlay"></div>
+    <div class="noise"></div>
+  </div>
+
+  <header class="topbar glass">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div>
+        <h1>Myllo</h1>
+        <p id="subtitle" class="subtitle"></p>
+      </div>
+    </div>
+
+    <div class="progress" title="Progression globale">
+      <svg viewBox="0 0 36 36" class="ring" aria-hidden="true">
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#a78bfa"/>
+            <stop offset="1" stop-color="#34d399"/>
+          </linearGradient>
+        </defs>
+        <circle cx="18" cy="18" r="15.9155" class="ring-bg"/>
+        <circle cx="18" cy="18" r="15.9155" class="ring-fg" id="ringFg" pathLength="100"/>
+      </svg>
+      <span id="progressLabel" class="ring-label">0%</span>
+    </div>
+
+    <label class="search">
+      <span data-icon="search"></span>
+      <input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher une tâche" autocomplete="off">
+      <kbd>/</kbd>
+    </label>
+
+    <div class="filters" id="filters" role="group" aria-label="Filtrer par priorité">
+      <button class="chip-filter active" data-prio="all" aria-pressed="true">Toutes</button>
+      <button class="chip-filter" data-prio="urgent" style="--c: var(--p-urgent)" aria-pressed="false"><i></i>Urgente</button>
+      <button class="chip-filter" data-prio="high" style="--c: var(--p-high)" aria-pressed="false"><i></i>Haute</button>
+      <button class="chip-filter" data-prio="medium" style="--c: var(--p-medium)" aria-pressed="false"><i></i>Moyenne</button>
+      <button class="chip-filter" data-prio="low" style="--c: var(--p-low)" aria-pressed="false"><i></i>Basse</button>
+    </div>
+
+    <div class="actions">
+      <button class="icon-btn" id="exportBtn" title="Exporter les tâches (JSON)" aria-label="Exporter" data-icon="download"></button>
+      <button class="icon-btn" id="importBtn" title="Importer des tâches (JSON)" aria-label="Importer" data-icon="upload"></button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button class="btn primary" id="newTask"><span data-icon="plus"></span><span class="label">Nouvelle tâche</span><kbd>N</kbd></button>
+    </div>
+  </header>
+
+  <main class="board" id="board">
+    <section class="column glass" data-status="todo" aria-labelledby="h-todo">
+      <header class="col-head">
+        <span class="col-icon" data-icon="inbox"></span>
+        <h2 id="h-todo">À faire</h2>
+        <span class="count" data-count="todo">0</span>
+        <div class="col-tools">
+          <button class="icon-btn sm" data-sort="todo" title="Trier par priorité" aria-label="Trier par priorité" data-icon="sort"></button>
+        </div>
+      </header>
+      <div class="col-body" data-status="todo"></div>
+      <div class="col-foot">
+        <button class="add-btn" data-add="todo"><span data-icon="plus"></span>Ajouter une tâche</button>
+      </div>
+    </section>
+
+    <section class="column glass" data-status="doing" aria-labelledby="h-doing">
+      <header class="col-head">
+        <span class="col-icon" data-icon="play"></span>
+        <h2 id="h-doing">En cours</h2>
+        <span class="count" data-count="doing">0</span>
+        <div class="col-tools">
+          <button class="icon-btn sm" data-sort="doing" title="Trier par priorité" aria-label="Trier par priorité" data-icon="sort"></button>
+        </div>
+      </header>
+      <div class="col-body" data-status="doing"></div>
+      <div class="col-foot">
+        <button class="add-btn" data-add="doing"><span data-icon="plus"></span>Ajouter une tâche</button>
+      </div>
+    </section>
+
+    <section class="column glass" data-status="done" aria-labelledby="h-done">
+      <header class="col-head">
+        <span class="col-icon" data-icon="checkCircle"></span>
+        <h2 id="h-done">Fait</h2>
+        <span class="count" data-count="done">0</span>
+        <div class="col-tools">
+          <button class="icon-btn sm" data-sort="done" title="Trier par priorité" aria-label="Trier par priorité" data-icon="sort"></button>
+          <button class="icon-btn sm" data-clear title="Vider la colonne" aria-label="Vider la colonne Fait" data-icon="trash"></button>
+        </div>
+      </header>
+      <div class="col-body" data-status="done"></div>
+      <div class="col-foot">
+        <button class="add-btn" data-add="done"><span data-icon="plus"></span>Ajouter une tâche</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modal" aria-hidden="true">
+    <form class="modal" id="taskForm" role="dialog" aria-modal="true" aria-labelledby="modalTitle" novalidate autocomplete="off">
+      <header class="modal-head">
+        <h2 id="modalTitle">Nouvelle tâche</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Fermer" data-icon="x"></button>
+      </header>
+
+      <input id="fTitle" class="title-input" placeholder="Que faut-il faire ?" maxlength="160" aria-label="Titre">
+
+      <label class="field">
+        <span class="field-label">Détails</span>
+        <textarea id="fDesc" rows="3" placeholder="Contexte, liens, notes…"></textarea>
+      </label>
+
+      <div class="field">
+        <span class="field-label">Priorité</span>
+        <div class="seg" role="radiogroup" aria-label="Priorité">
+          <label class="seg-opt" style="--c: var(--p-low)"><input type="radio" name="priority" value="low"><span><i></i>Basse</span></label>
+          <label class="seg-opt" style="--c: var(--p-medium)"><input type="radio" name="priority" value="medium"><span><i></i>Moyenne</span></label>
+          <label class="seg-opt" style="--c: var(--p-high)"><input type="radio" name="priority" value="high"><span><i></i>Haute</span></label>
+          <label class="seg-opt" style="--c: var(--p-urgent)"><input type="radio" name="priority" value="urgent"><span><i></i>Urgente</span></label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field grow">
+          <span class="field-label">Colonne</span>
+          <div class="seg" role="radiogroup" aria-label="Colonne">
+            <label class="seg-opt" style="--c: var(--c-todo)"><input type="radio" name="status" value="todo"><span>À faire</span></label>
+            <label class="seg-opt" style="--c: var(--c-doing)"><input type="radio" name="status" value="doing"><span>En cours</span></label>
+            <label class="seg-opt" style="--c: var(--c-done)"><input type="radio" name="status" value="done"><span>Fait</span></label>
+          </div>
+        </div>
+        <label class="field">
+          <span class="field-label">Échéance</span>
+          <input type="date" id="fDue" class="date-input">
+        </label>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Sous-tâches <span id="fCheckCount" class="check-count"></span></div>
+        <ul id="fChecklist" class="checklist"></ul>
+        <div class="check-new">
+          <span data-icon="plus"></span>
+          <input id="fCheckNew" placeholder="Ajouter une sous-tâche puis Entrée" aria-label="Nouvelle sous-tâche">
+        </div>
+      </div>
+
+      <footer class="modal-foot">
+        <button type="button" class="btn danger" id="fDelete"><span data-icon="trash"></span>Supprimer</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Annuler</button>
+        <button type="submit" class="btn primary">Enregistrer <kbd>Ctrl ↵</kbd></button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
